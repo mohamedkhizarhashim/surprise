@@ -10,9 +10,6 @@ body {
     margin: 0;
     font-family: serif;
     background: linear-gradient(to bottom, #ff9eb5, #ffc1cc);
-    display: flex;
-    justify-content: center;
-    align-items: center;
     height: 100vh;
     overflow: hidden;
 }
@@ -36,9 +33,16 @@ button {
     font-size: 18px;
 }
 
+/* MAIN CONTENT (HIDDEN INITIALLY) */
+#mainContent {
+    display: none; /* IMPORTANT FIX */
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
 /* CARD */
 .container {
-    display: none;
     background: rgba(255,255,255,0.95);
     width: 90%;
     max-width: 400px;
@@ -51,7 +55,7 @@ button {
 #slideshow {
     width: 100%;
     height: 60vh;
-    background: #000; /* fills empty space nicely */
+    background: #000;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -63,7 +67,7 @@ button {
 #slideshow img {
     max-width: 100%;
     max-height: 100%;
-    object-fit: contain; /* SHOW FULL IMAGE */
+    object-fit: contain;
     position: absolute;
     opacity: 0;
     transition: opacity 2s ease-in-out;
@@ -91,39 +95,41 @@ button {
 
 <body>
 
-<!-- START -->
+<!-- START SCREEN -->
 <div id="startScreen">
     <button onclick="startGift()">Tap to open your gift 🎁</button>
 </div>
 
-<!-- MAIN -->
-<div class="container" id="mainContent">
-    <h2>For Aisha 💖</h2>
+<!-- MAIN CONTENT -->
+<div id="mainContent">
+    <div class="container">
+        <h2>For Aisha 💖</h2>
 
-    <div id="slideshow">
-        <img src="img1.jpeg" class="active">
-        <img src="img2.jpeg">
-        <img src="img3.jpeg">
-        <img src="img4.jpeg">
-        <img src="img5.jpeg">
-        <img src="img6.jpeg">
-        <img src="img7.jpeg">
-        <img src="img8.jpeg">
-        <img src="img9.jpeg">
-        <img src="img10.jpeg">
-        <img src="img11.jpeg">
-        <img src="img12.jpeg">
-        <img src="img13.jpeg">
-        <img src="img14.jpeg">
-        <img src="img15.jpeg">
-        <img src="img16.jpeg">
-        <img src="img17.jpeg">
-        <img src="img18.jpeg">
-        <img src="img19.png">
-        <img src="img20.jpeg">
+        <div id="slideshow">
+            <img src="img1.jpeg" class="active">
+            <img src="img2.jpeg">
+            <img src="img3.jpeg">
+            <img src="img4.jpeg">
+            <img src="img5.jpeg">
+            <img src="img6.jpeg">
+            <img src="img7.jpeg">
+            <img src="img8.jpeg">
+            <img src="img9.jpeg">
+            <img src="img10.jpeg">
+            <img src="img11.jpeg">
+            <img src="img12.jpeg">
+            <img src="img13.jpeg">
+            <img src="img14.jpeg">
+            <img src="img15.jpeg">
+            <img src="img16.jpeg">
+            <img src="img17.jpeg">
+            <img src="img18.jpeg">
+            <img src="img19.png">
+            <img src="img20.jpeg">
+        </div>
+
+        <p>Every moment with you feels like magic 💖</p>
     </div>
-
-    <p>Every moment with you feels like magic 💖</p>
 </div>
 
 <audio id="music" src="music.mp3" loop></audio>
@@ -136,12 +142,12 @@ let index = 0;
 const totalDuration = 30000;
 const slideDuration = totalDuration / slides.length;
 
-/* START EXPERIENCE */
+/* START ONLY ON CLICK */
 function startGift() {
     document.getElementById("startScreen").style.display = "none";
-    document.getElementById("mainContent").style.display = "block";
+    document.getElementById("mainContent").style.display = "flex";
 
-    // ✅ Play music AFTER click (fixes iPhone)
+    // Play music after interaction (required for iPhone)
     music.play().then(() => {
         console.log("Playing");
     }).catch(e => {
