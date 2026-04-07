@@ -13,7 +13,6 @@ body {
     overflow: hidden;
 }
 
-/* Screens */
 .screen {
     position: absolute;
     width: 100%;
@@ -32,10 +31,6 @@ body {
     background: #ff4d88;
     color: white;
     cursor: pointer;
-    transition: transform 0.2s;
-}
-.open-btn:hover {
-    transform: scale(1.05);
 }
 
 /* Card */
@@ -79,11 +74,10 @@ body {
     opacity: 1;
 }
 
-/* Message typing */
+/* Message */
 .message {
     margin-top: 15px;
     font-style: italic;
-    min-height: 50px;
 }
 
 /* Hearts */
@@ -104,7 +98,9 @@ body {
 
 <!-- START -->
 <div id="startScreen" class="screen">
-    <button class="open-btn" onclick="openGift()">Tap to open your gift 🎁</button>
+    <button type="button" class="open-btn" onclick="openGift()">
+        Tap to open your gift 🎁
+    </button>
 </div>
 
 <!-- CARD -->
@@ -114,7 +110,9 @@ body {
 
         <div class="slideshow" id="slideshow"></div>
 
-        <div class="message" id="message"></div>
+        <div class="message">
+            Every moment with you feels like magic... 💖
+        </div>
     </div>
 </div>
 
@@ -123,20 +121,35 @@ body {
 <script>
 /* 🔧 EDIT THESE */
 const NAME = "Aisha 💖";
+
 const MUSIC_URL = "music.mp3";
 
+/* ⚠️ MAKE SURE THESE MATCH EXACT FILE NAMES (case-sensitive!) */
 const IMAGES = [
-    "img1.jpg",
-    "img2.jpg",
-    "img3.jpg"
+  "img1.jpeg",
+  "img2.jpeg",
+  "img3.jpeg",
+  "img4.jpeg",
+  "img5.jpeg",
+  "img6.jpeg",
+  "img7.jpeg",
+  "img8.jpeg",
+  "img9.jpeg",
+  "img10.jpeg",
+  "img11.jpeg",
+  "img12.jpeg",
+  "img13.jpeg",
+  "img14.jpeg",
+  "img15.jpeg",
+  "img16.jpeg",
+  "img17.jpeg",
+  "img18.jpeg",
+  "img19.png",
+  "img20.jpeg"
 ];
 
-const MESSAGE = "Every moment with you feels like magic... 💖";
-
-/* Elements */
 const music = document.getElementById("music");
 const slideshow = document.getElementById("slideshow");
-const messageEl = document.getElementById("message");
 
 let index = 0;
 
@@ -151,7 +164,6 @@ function openGift() {
     startSlideshow();
     playMusic();
     startHearts();
-    typeMessage();
 
     document.getElementById("cardBox").style.display = "block";
 }
@@ -161,7 +173,13 @@ function setupSlideshow() {
     IMAGES.forEach((src, i) => {
         const img = document.createElement("img");
         img.src = src;
+
+        img.onerror = () => {
+            console.error("Failed to load:", src);
+        };
+
         if (i === 0) img.classList.add("active");
+
         slideshow.appendChild(img);
     });
 }
@@ -179,23 +197,12 @@ function startSlideshow() {
 /* MUSIC */
 function playMusic() {
     music.src = MUSIC_URL;
-    music.play().catch(() => console.log("Autoplay blocked"));
-}
 
-/* TYPEWRITER */
-function typeMessage() {
-    let i = 0;
-    const speed = 40;
-
-    function typing() {
-        if (i < MESSAGE.length) {
-            messageEl.innerHTML += MESSAGE.charAt(i);
-            i++;
-            setTimeout(typing, speed);
-        }
-    }
-
-    typing();
+    music.play().then(() => {
+        console.log("Playing");
+    }).catch(e => {
+        console.log("Blocked:", e);
+    });
 }
 
 /* HEARTS */
