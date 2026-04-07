@@ -8,57 +8,69 @@
 <style>
 body {
     margin: 0;
-    padding: 0;
     font-family: serif;
     background: linear-gradient(to bottom, #ff9eb5, #ffc1cc);
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    height: 100vh;
     overflow: hidden;
 }
 
+/* START SCREEN */
+#startScreen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+button {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 30px;
+    background: #ff4d88;
+    color: white;
+    font-size: 18px;
+}
+
+/* CARD */
 .container {
-    background: rgba(255,255,255,0.9);
+    display: none;
+    background: rgba(255,255,255,0.95);
     width: 90%;
     max-width: 400px;
     padding: 20px;
     border-radius: 25px;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
 /* SLIDESHOW */
 #slideshow {
     width: 100%;
-    aspect-ratio: 3 / 4;
-    margin: 20px auto;
+    height: 60vh;
+    background: #000; /* fills empty space nicely */
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: relative;
     overflow: hidden;
     border-radius: 20px;
 }
 
 #slideshow img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* SHOW FULL IMAGE */
     position: absolute;
-    top: 0;
-    left: 0;
     opacity: 0;
-    transition: opacity 1.5s ease-in-out;
+    transition: opacity 2s ease-in-out;
 }
 
-/* ACTIVE IMAGE */
 #slideshow img.active {
     opacity: 1;
-    animation: zoom 3s ease-in-out;
-}
-
-/* ZOOM EFFECT */
-@keyframes zoom {
-    from { transform: scale(1); }
-    to { transform: scale(1.08); }
 }
 
 /* HEARTS */
@@ -67,7 +79,6 @@ body {
     top: -10px;
     font-size: 24px;
     animation: fall linear infinite;
-    pointer-events: none;
 }
 
 @keyframes fall {
@@ -80,8 +91,14 @@ body {
 
 <body>
 
-<div class="container">
-    <h1>For Aisha 💖</h1>
+<!-- START -->
+<div id="startScreen">
+    <button onclick="startGift()">Tap to open your gift 🎁</button>
+</div>
+
+<!-- MAIN -->
+<div class="container" id="mainContent">
+    <h2>For Aisha 💖</h2>
 
     <div id="slideshow">
         <img src="img1.jpeg" class="active">
@@ -106,55 +123,58 @@ body {
         <img src="img20.jpeg">
     </div>
 
-    <p>Every moment with you feels like magic... 💖</p>
+    <p>Every moment with you feels like magic 💖</p>
 </div>
 
 <audio id="music" src="music.mp3" loop></audio>
 
 <script>
-// 🎵 MUSIC
 const music = document.getElementById("music");
+const slides = document.querySelectorAll("#slideshow img");
 
-window.onload = () => {
+let index = 0;
+const totalDuration = 30000;
+const slideDuration = totalDuration / slides.length;
+
+/* START EXPERIENCE */
+function startGift() {
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("mainContent").style.display = "block";
+
+    // ✅ Play music AFTER click (fixes iPhone)
     music.play().then(() => {
         console.log("Playing");
     }).catch(e => {
         console.log("Blocked:", e);
     });
-};
 
-// 📸 SLIDESHOW (SYNC WITH 30s MUSIC)
-const slides = document.querySelectorAll("#slideshow img");
-let index = 0;
-
-const totalDuration = 30000; // 30 seconds
-const slideDuration = totalDuration / slides.length;
-
-function showNextSlide() {
-    slides[index].classList.remove("active");
-    index = (index + 1) % slides.length;
-    slides[index].classList.add("active");
+    startSlideshow();
+    startHearts();
 }
 
-setInterval(showNextSlide, slideDuration);
-
-// 💖 HEARTS
-function createHeart() {
-    const heart = document.createElement("div");
-    heart.classList.add("heart");
-    heart.innerText = "💖";
-
-    heart.style.left = Math.random() * 100 + "vw";
-    heart.style.animationDuration = (Math.random() * 3 + 3) + "s";
-
-    document.body.appendChild(heart);
-
-    setTimeout(() => {
-        heart.remove();
-    }, 6000);
+/* SLIDESHOW */
+function startSlideshow() {
+    setInterval(() => {
+        slides[index].classList.remove("active");
+        index = (index + 1) % slides.length;
+        slides[index].classList.add("active");
+    }, slideDuration);
 }
 
-setInterval(createHeart, 300);
+/* HEARTS */
+function startHearts() {
+    setInterval(() => {
+        const heart = document.createElement("div");
+        heart.className = "heart";
+        heart.innerText = "💖";
+        heart.style.left = Math.random() * 100 + "vw";
+        heart.style.animationDuration = (Math.random() * 3 + 3) + "s";
+
+        document.body.appendChild(heart);
+
+        setTimeout(() => heart.remove(), 6000);
+    }, 300);
+}
 </script>
 
 </body>
