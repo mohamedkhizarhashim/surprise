@@ -13,7 +13,7 @@ body {
     overflow: hidden;
 }
 
-/* Center screens */
+/* Screens */
 .screen {
     position: absolute;
     width: 100%;
@@ -21,62 +21,69 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
 }
 
 /* Button */
 .open-btn {
-    padding: 15px 25px;
+    padding: 16px 28px;
     font-size: 18px;
-    border: none;
     border-radius: 30px;
+    border: none;
     background: #ff4d88;
     color: white;
     cursor: pointer;
+    transition: transform 0.2s;
+}
+.open-btn:hover {
+    transform: scale(1.05);
 }
 
 /* Card */
 .card {
     display: none;
     background: white;
-    padding: 25px;
+    padding: 20px;
     border-radius: 20px;
     width: 90%;
     max-width: 400px;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    animation: fadeIn 1s ease forwards;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    animation: pop 0.8s ease;
 }
 
-/* Animation */
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
+@keyframes pop {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
 
-/* Quote */
-.quote {
-    font-style: italic;
-    margin: 15px 0;
-}
-
-/* Mirror */
-.mirror {
+/* Slideshow */
+.slideshow {
     width: 100%;
     aspect-ratio: 1;
     border-radius: 15px;
     overflow: hidden;
-    border: 3px solid #f8cdda;
-    background: black;
+    position: relative;
+    margin-top: 15px;
 }
 
-video {
+.slideshow img {
+    position: absolute;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transform: scaleX(-1);
-    filter: blur(12px);
-    transition: filter 2s ease;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+}
+
+.slideshow img.active {
+    opacity: 1;
+}
+
+/* Message typing */
+.message {
+    margin-top: 15px;
+    font-style: italic;
+    min-height: 50px;
 }
 
 /* Hearts */
@@ -87,8 +94,8 @@ video {
 }
 
 @keyframes float {
-    from { transform: translateY(100vh) scale(0.5); }
-    to { transform: translateY(-10vh) scale(1.2); }
+    from { transform: translateY(100vh) scale(0.6); }
+    to { transform: translateY(-10vh) scale(1.3); }
 }
 </style>
 </head>
@@ -97,108 +104,98 @@ video {
 
 <!-- START -->
 <div id="startScreen" class="screen">
-    <button type="button" class="open-btn" onclick="openGift()">
-        Tap to open your gift 🎁
-    </button>
-</div>
-
-<!-- SETUP -->
-<div id="setupScreen" class="screen" style="display:none;">
-    <input id="nameInput" placeholder="Enter your name"
-        style="padding:10px; margin:10px; border-radius:10px; border:1px solid #ccc;">
-    
-    <select id="musicSelect" style="padding:10px; border-radius:10px;">
-        <option value="">Choose music 🎵</option>
-        <option value="song1">Romantic Piano</option>
-        <option value="song2">Soft Love</option>
-        <option value="song3">Dreamy Vibes</option>
-    </select>
-
-    <button type="button" class="open-btn" onclick="showCard()">
-        Continue 💖
-    </button>
+    <button class="open-btn" onclick="openGift()">Tap to open your gift 🎁</button>
 </div>
 
 <!-- CARD -->
-<div id="card" class="screen" style="display:none;">
+<div id="cardScreen" class="screen" style="display:none;">
     <div class="card" id="cardBox">
-        <h2 id="title">A Little Gift 💝</h2>
+        <h2 id="title"></h2>
 
-        <div class="quote" contenteditable="true">
-            "Sometimes, the most beautiful thing is right in front of you."
-        </div>
+        <div class="slideshow" id="slideshow"></div>
 
-        <div class="mirror">
-            <video id="video" autoplay playsinline muted></video>
-        </div>
+        <div class="message" id="message"></div>
     </div>
 </div>
 
 <audio id="music" loop></audio>
 
 <script>
-const video = document.getElementById('video');
-const music = document.getElementById('music');
+/* 🔧 EDIT THESE */
+const NAME = "Aisha 💖";
+const MUSIC_URL = "music.mp3";
 
-/* STEP 1 */
+const IMAGES = [
+    "img1.jpg",
+    "img2.jpg",
+    "img3.jpg"
+];
+
+const MESSAGE = "Every moment with you feels like magic... 💖";
+
+/* Elements */
+const music = document.getElementById("music");
+const slideshow = document.getElementById("slideshow");
+const messageEl = document.getElementById("message");
+
+let index = 0;
+
+/* OPEN */
 function openGift() {
-    document.getElementById('startScreen').style.display = "none";
-    document.getElementById('setupScreen').style.display = "flex";
-}
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("cardScreen").style.display = "flex";
 
-/* STEP 2 */
-function showCard() {
-    const name = document.getElementById('nameInput').value || "Beautiful";
-    const musicChoice = document.getElementById('musicSelect').value;
+    document.getElementById("title").innerText = "For " + NAME;
 
-    document.getElementById('setupScreen').style.display = "none";
-    document.getElementById('card').style.display = "flex";
-
-    document.getElementById('title').innerText = "For " + name + " 💖";
-
-    startCamera();
-    playMusic(musicChoice);
+    setupSlideshow();
+    startSlideshow();
+    playMusic();
     startHearts();
+    typeMessage();
 
-    // show card animation properly
-    document.getElementById('cardBox').style.display = "block";
+    document.getElementById("cardBox").style.display = "block";
 }
 
-/* CAMERA */
-async function startCamera() {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: "user" }
-        });
+/* SLIDESHOW */
+function setupSlideshow() {
+    IMAGES.forEach((src, i) => {
+        const img = document.createElement("img");
+        img.src = src;
+        if (i === 0) img.classList.add("active");
+        slideshow.appendChild(img);
+    });
+}
 
-        video.srcObject = stream;
+function startSlideshow() {
+    const imgs = document.querySelectorAll(".slideshow img");
 
-        setTimeout(() => {
-            video.style.filter = "blur(0px)";
-        }, 1500);
-
-    } catch (err) {
-        alert("Please allow camera access 💝");
-        console.error(err);
-    }
+    setInterval(() => {
+        imgs[index].classList.remove("active");
+        index = (index + 1) % imgs.length;
+        imgs[index].classList.add("active");
+    }, 3000);
 }
 
 /* MUSIC */
-function playMusic(choice) {
-    if (choice === "song1")
-        music.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+function playMusic() {
+    music.src = MUSIC_URL;
+    music.play().catch(() => console.log("Autoplay blocked"));
+}
 
-    if (choice === "song2")
-        music.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3";
+/* TYPEWRITER */
+function typeMessage() {
+    let i = 0;
+    const speed = 40;
 
-    if (choice === "song3")
-        music.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3";
-
-    if (choice) {
-        music.play().catch(() => {
-            console.log("User interaction needed for audio");
-        });
+    function typing() {
+        if (i < MESSAGE.length) {
+            messageEl.innerHTML += MESSAGE.charAt(i);
+            i++;
+            setTimeout(typing, speed);
+        }
     }
+
+    typing();
 }
 
 /* HEARTS */
