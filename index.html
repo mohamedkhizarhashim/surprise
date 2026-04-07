@@ -24,7 +24,7 @@ body {
     flex-direction: column;
 }
 
-/* Opening button */
+/* Button */
 .open-btn {
     padding: 15px 25px;
     font-size: 18px;
@@ -48,7 +48,7 @@ body {
     animation: fadeIn 1s ease forwards;
 }
 
-/* Fade animation */
+/* Animation */
 @keyframes fadeIn {
     from { opacity: 0; transform: scale(0.9); }
     to { opacity: 1; transform: scale(1); }
@@ -95,14 +95,17 @@ video {
 
 <body>
 
-<!-- OPEN SCREEN -->
-<button type="button" class="open-btn" onclick="openGift()">
-    Tap to open your gift 🎁
-</button>
+<!-- START -->
+<div id="startScreen" class="screen">
+    <button type="button" class="open-btn" onclick="openGift()">
+        Tap to open your gift 🎁
+    </button>
+</div>
 
-<!-- SETUP SCREEN -->
+<!-- SETUP -->
 <div id="setupScreen" class="screen" style="display:none;">
-    <input id="nameInput" placeholder="Enter your name" style="padding:10px; margin:10px; border-radius:10px; border:1px solid #ccc;">
+    <input id="nameInput" placeholder="Enter your name"
+        style="padding:10px; margin:10px; border-radius:10px; border:1px solid #ccc;">
     
     <select id="musicSelect" style="padding:10px; border-radius:10px;">
         <option value="">Choose music 🎵</option>
@@ -112,20 +115,21 @@ video {
     </select>
 
     <button type="button" class="open-btn" onclick="showCard()">
-    Continue 💖
-</button>
+        Continue 💖
+    </button>
 </div>
 
 <!-- CARD -->
-<div id="card" class="screen">
-    <div class="card">
+<div id="card" class="screen" style="display:none;">
+    <div class="card" id="cardBox">
         <h2 id="title">A Little Gift 💝</h2>
+
         <div class="quote" contenteditable="true">
             "Sometimes, the most beautiful thing is right in front of you."
         </div>
 
         <div class="mirror">
-            <video id="video" autoplay playsinline></video>
+            <video id="video" autoplay playsinline muted></video>
         </div>
     </div>
 </div>
@@ -136,13 +140,13 @@ video {
 const video = document.getElementById('video');
 const music = document.getElementById('music');
 
-/* Step 1 */
+/* STEP 1 */
 function openGift() {
     document.getElementById('startScreen').style.display = "none";
     document.getElementById('setupScreen').style.display = "flex";
 }
 
-/* Step 2 */
+/* STEP 2 */
 function showCard() {
     const name = document.getElementById('nameInput').value || "Beautiful";
     const musicChoice = document.getElementById('musicSelect').value;
@@ -155,35 +159,49 @@ function showCard() {
     startCamera();
     playMusic(musicChoice);
     startHearts();
+
+    // show card animation properly
+    document.getElementById('cardBox').style.display = "block";
 }
 
-/* Camera */
+/* CAMERA */
 async function startCamera() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({
             video: { facingMode: "user" }
         });
+
         video.srcObject = stream;
 
         setTimeout(() => {
             video.style.filter = "blur(0px)";
         }, 1500);
 
-    } catch {
+    } catch (err) {
         alert("Please allow camera access 💝");
+        console.error(err);
     }
 }
 
-/* Music */
+/* MUSIC */
 function playMusic(choice) {
-    if (choice === "song1") music.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
-    if (choice === "song2") music.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3";
-    if (choice === "song3") music.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3";
+    if (choice === "song1")
+        music.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
 
-    if (choice) music.play();
+    if (choice === "song2")
+        music.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3";
+
+    if (choice === "song3")
+        music.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3";
+
+    if (choice) {
+        music.play().catch(() => {
+            console.log("User interaction needed for audio");
+        });
+    }
 }
 
-/* Hearts */
+/* HEARTS */
 function startHearts() {
     setInterval(() => {
         const heart = document.createElement("div");
