@@ -33,9 +33,9 @@ button {
     font-size: 18px;
 }
 
-/* MAIN CONTENT (HIDDEN INITIALLY) */
+/* MAIN */
 #mainContent {
-    display: none; /* IMPORTANT FIX */
+    display: none;
     justify-content: center;
     align-items: center;
     height: 100%;
@@ -70,7 +70,7 @@ button {
     object-fit: contain;
     position: absolute;
     opacity: 0;
-    transition: opacity 2s ease-in-out;
+    transition: opacity 1.5s ease-in-out; /* smooth fade */
 }
 
 #slideshow img.active {
@@ -95,12 +95,12 @@ button {
 
 <body>
 
-<!-- START SCREEN -->
+<!-- START -->
 <div id="startScreen">
     <button onclick="startGift()">Tap to open your gift 🎁</button>
 </div>
 
-<!-- MAIN CONTENT -->
+<!-- MAIN -->
 <div id="mainContent">
     <div class="container">
         <h2>For Aisha 💖</h2>
@@ -139,30 +139,28 @@ const music = document.getElementById("music");
 const slides = document.querySelectorAll("#slideshow img");
 
 let index = 0;
-const totalDuration = 30000;
-const slideDuration = totalDuration / slides.length;
 
-/* START ONLY ON CLICK */
+/* SHOW ALL IMAGES SLOWLY */
+const slideDuration = 3000; // 3 seconds per image
+
 function startGift() {
     document.getElementById("startScreen").style.display = "none";
     document.getElementById("mainContent").style.display = "flex";
 
-    // Play music after interaction (required for iPhone)
-    music.play().then(() => {
-        console.log("Playing");
-    }).catch(e => {
-        console.log("Blocked:", e);
-    });
+    // Play music after click (iPhone safe)
+    music.play().catch(() => console.log("Autoplay blocked"));
 
     startSlideshow();
     startHearts();
 }
 
-/* SLIDESHOW */
+/* CLEAN FADE SLIDESHOW */
 function startSlideshow() {
     setInterval(() => {
         slides[index].classList.remove("active");
+
         index = (index + 1) % slides.length;
+
         slides[index].classList.add("active");
     }, slideDuration);
 }
